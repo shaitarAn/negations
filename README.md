@@ -13,3 +13,5 @@ PROBLEM: The ordering is messed up when there are multiple neg_structures on one
 ElementTree does not allow to access a parent node!
 
 __try_this.py__: Attempt to do the job with lxml instead of ElementTree. lxml has an attribute .getparent() and also elem.getroottree().getpath(elem) This allows to account for all negation_structures in a sentence.
+
+PROBLEM: .getroot() uses actual file as a root. I cannot find a way to use sentence node as a root. 
