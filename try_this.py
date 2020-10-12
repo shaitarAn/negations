@@ -17,14 +17,17 @@ article = format('test.xml')
 
 tree = etree.parse(article)
 
+pattern = re.compile('neg_structure\\[(.)')
+
 
 # counts the number of parents to the root element
 def get_depth(element):
     # from https://stackoverflow.com/questions/39112938/parse-hierarchical-xml-tags
     depth = 0
     parent = element.getparent()
-    path = [element.tag, parent.tag]
-    while parent is not None:
+    path = [parent.tag]
+    while parent is not None and not str(parent.tag).startswith('sentence'):
+        # print(parent.tag)
         depth += 1
         parent = parent.getparent()
         if parent is not None:
@@ -33,24 +36,96 @@ def get_depth(element):
     return path
 
 
-pattern = re.compile('neg_structure\\[(.)')
+def process_sentence(sentence, i, negation_events):
+    negs = 0
+
+    try:
+        for element in sentence:
+
+            # top level neg_structures
+            if element.tag == 'neg_structure':
+                negs += 1
+                print('A', negs)
+                for el_in_neg_structure in list(element):
+
+                    if el_in_neg_structure.tag == 'scope':
+                        # print('*** beginning of scope ***')
+                        for el_in_scope in list(el_in_neg_structure):
+
+                            # if cue is a multiword it has attribute 'discid="1n/c"'
+                            if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
+                                for neg in list(el_in_scope):
+                                    pass
+
+                            # regular cue has no attribute
+                            elif el_in_scope.tag == 'negexp':
+                                for neg in list(el_in_scope):
+                                    path = neg.getroottree().getpath(neg)
+                                    paths = path.split('/')
+                                    if pattern.search(path):
+                                        ns = pattern.search(path).group(1)
+                                    if negs == i:
+                                        print(get_depth(neg)[::-1])
+                                        print(negation_events)
+
+                            elif el_in_scope.tag == 'neg_structure':
+                                negs += 1
+                                print('C', negs)
+                                for neg in list(el_in_scope):
+                                    if neg.tag == 'scope':
+                                        for s in list(neg):
+                                            if s.tag == 'negexp':
+                                                for n in list(s):
+                                                    if n.tag == 'event':
+                                                        for e in list(n):
+                                                            if negs == i:
+                                                                # path = e.getroottree().getpath(e)
+                                                                # paths = path.split('/')
+                                                                # print(paths)
+                                                                print(get_depth(e)[::-1])
+                                                                print(negation_events)
+
+                        # process nested neg_structure
+                    elif el_in_neg_structure.tag == 'neg_structure':
+                        negs += 1
+                        print('B', negs, i)
+                        for subsection in list(el_in_neg_structure):
+                            if subsection.tag == 'scope':
+                                for el_in_scope in list(subsection):
+
+                                    # if cue is a multiword it has attribute 'discid="1n/c"'
+                                    if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
+                                        for neg in list(el_in_scope):
+                                            pass
+
+                                    # regular cue has no attribute
+                                    elif el_in_scope.tag == 'negexp':
+                                        for neg in list(el_in_scope):
+                                            if negs == i:
+                                                # path = neg.getroottree().getpath(neg)
+                                                # paths = path.split('/')
+                                                # print(paths)
+                                                print(get_depth(neg)[::-1])
+                                                print(negation_events)
+
+                        else:
+                            pass
+
+            # collect other words in the sentence
+            elif element.get('wd'):
+                pass
+                # print(element.get('wd'))
+
+    except TypeError:
+        pass
+
 
 for sentence in tree.findall('.//sentence'):
     elems = sentence.xpath('//negexp')
     negation_events = sum(1 for x in sentence.iter('neg_structure'))
     print(negation_events)
-    for elem in elems:
-        num = 0
-        # print([x.tag for x in elem.iterancestors()][::-1])
-        path = elem.getroottree().getpath(elem)
-        paths = path.split('/')
-        if pattern.search(path):
-            num = pattern.search(path).group(1)
-            # print(num)
-        # negs = sum(1 for x in paths if x == 'neg_structure')
-        negs = sum(1 for x in get_depth(elem) if x == 'neg_structure')
-        # print('{}'.format(' > '.join(paths)))
-        print('top level neg_structure #{}, depth of neg_structure:{}, neg_structures in sentence:{}'.format(
-            num, negs, negation_events))
-        print()
+
+    for i in range(negation_events):
+        process_sentence(sentence, i + 1, negation_events)
+
     print('***************************')
