@@ -16,7 +16,6 @@ outpath.mkdir(parents=True, exist_ok=True)
 article = format('test.xml')
 
 tree = etree.parse(article)
-# root = tree.getroot()
 
 
 # counts the number of parents to the root element
@@ -38,12 +37,11 @@ pattern = re.compile('neg_structure\\[(.)')
 
 for sentence in tree.findall('.//sentence'):
     elems = sentence.xpath('//negexp')
-    negation_events = sum(1 for elem in sentence.iter()
-                          if elem.tag == 'neg_structure')
+    negation_events = sum(1 for x in sentence.iter('neg_structure'))
     print(negation_events)
     for elem in elems:
         num = 0
-        print([x.tag for x in elem.iterancestors()][::-1])
+        # print([x.tag for x in elem.iterancestors()][::-1])
         path = elem.getroottree().getpath(elem)
         paths = path.split('/')
         if pattern.search(path):
@@ -51,6 +49,8 @@ for sentence in tree.findall('.//sentence'):
             # print(num)
         # negs = sum(1 for x in paths if x == 'neg_structure')
         negs = sum(1 for x in get_depth(elem) if x == 'neg_structure')
-        print('{}, depth:{}, first-level-num:{}, events:{}'.format(' > '.join(paths), negs, num, negation_events))
+        # print('{}'.format(' > '.join(paths)))
+        print('top level neg_structure #{}, depth of neg_structure:{}, neg_structures in sentence:{}'.format(
+            num, negs, negation_events))
         print()
     print('***************************')
