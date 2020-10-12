@@ -13,6 +13,8 @@ outpath = Path('output/')
 outpath.mkdir(parents=True, exist_ok=True)
 
 article = format('test.xml')
+# article = format(
+# '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/peliculas/yes_4_12.tbf.xml')
 
 tree = etree.parse(article)
 
@@ -40,18 +42,27 @@ def process_sentence(sentence, i, negation_events):
 
                                 # if cue is a multiword it has attribute 'discid="1n/c"'
                                 if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
-                                    for neg in list(el_in_scope):
-                                        print('A', negs)
-                                        tokens.append(neg.get('wd').upper())
-                                        cues.append(2)
-                                        scope.append(0)
+                                    for neg in el_in_scope.iter():
+                                        try:
+                                            if neg.get('wd'):
+                                                # print(neg.get('wd'))
+                                                tokens.append(neg.get('wd').upper())
+                                                cues.append(2)
+                                                scope.append(0)
+                                        except:
+                                            pass
 
                                 # regular cue has no attribute
                                 elif el_in_scope.tag == 'negexp':
-                                    for neg in list(el_in_scope):
-                                        tokens.append(neg.get('wd').upper())
-                                        cues.append(1)
-                                        scope.append(0)
+                                    for neg in el_in_scope.iter():
+                                        try:
+                                            if neg.get('wd'):
+                                                # print(neg.get('wd'))
+                                                tokens.append(neg.get('wd').upper())
+                                                cues.append(1)
+                                                scope.append(0)
+                                        except:
+                                            pass
 
                                 else:
                                     for neg in el_in_scope.iter():
@@ -65,17 +76,27 @@ def process_sentence(sentence, i, negation_events):
                                             pass
 
                         elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
-                            for neg in list(el_in_neg_structure):
-                                tokens.append(neg.get('wd').upper())
-                                cues.append(2)
-                                scope.append(0)
+                            for neg in el_in_scope.iter():
+                                try:
+                                    if el_in_neg_structure.get('wd'):
+                                        # print(neg.get('wd'))
+                                        tokens.append(neg.get('wd').upper())
+                                        cues.append(2)
+                                        scope.append(0)
+                                except:
+                                    pass
 
                         # regular cue has no attribute
                         elif el_in_neg_structure.tag == 'negexp':
-                            for neg in list(el_in_neg_structure):
-                                tokens.append(neg.get('wd').upper())
-                                cues.append(1)
-                                scope.append(0)
+                            for neg in el_in_scope.iter():
+                                try:
+                                    if el_in_neg_structure.get('wd'):
+                                        # print(neg.get('wd'))
+                                        tokens.append(neg.get('wd').upper())
+                                        cues.append(1)
+                                        scope.append(0)
+                                except:
+                                    pass
 
                         else:
                             for el in el_in_neg_structure.iter():
@@ -112,17 +133,17 @@ def process_sentence(sentence, i, negation_events):
 for sentence in tree.findall('.//sentence'):
     elems = sentence.xpath('//negexp')
     negation_events = sum(1 for x in sentence.iter('neg_structure'))
-    print(negation_events)
     reslist = list(sentence.iter())
     text_tokens = [x.get('wd') for x in reslist if x.get('wd')]
     text = ' '.join([x.get('wd') for x in reslist if x.get('wd')])
-    print(len(text_tokens), text)
 
-    for i in range(negation_events):
-        tokens, cues, scope = process_sentence(sentence, i + 1, negation_events)
-        print(len(tokens), ' '.join(tokens))
-        print(cues)
-        print(scope)
-        print()
+    if negation_events > 0:
+        print('negation_events: ', negation_events)
+        for i in range(negation_events):
+            tokens, cues, scope = process_sentence(sentence, i + 1, negation_events)
+            print(len(tokens), len(text_tokens), ' '.join(tokens))
+            print(cues)
+            print(scope)
+            print()
 
     print('***************************')
