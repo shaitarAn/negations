@@ -76,9 +76,9 @@ def process_sentence(sentence, i, negation_events):
                                             pass
 
                         elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
-                            for neg in el_in_scope.iter():
+                            for neg in el_in_neg_structure.iter():
                                 try:
-                                    if el_in_neg_structure.get('wd'):
+                                    if neg.get('wd'):
                                         # print(neg.get('wd'))
                                         tokens.append(neg.get('wd').upper())
                                         cues.append(2)
@@ -88,9 +88,9 @@ def process_sentence(sentence, i, negation_events):
 
                         # regular cue has no attribute
                         elif el_in_neg_structure.tag == 'negexp':
-                            for neg in el_in_scope.iter():
+                            for neg in el_in_neg_structure.iter():
                                 try:
-                                    if el_in_neg_structure.get('wd'):
+                                    if neg.get('wd'):
                                         # print(neg.get('wd'))
                                         tokens.append(neg.get('wd').upper())
                                         cues.append(1)
