@@ -14,4 +14,14 @@ ElementTree does not allow to access a parent node!
 
 __try_this.py__: Attempt to do the job with lxml instead of ElementTree. lxml has an attribute .getparent() and also elem.getroottree().getpath(elem) This allows to account for all negation_structures in a sentence.
 
-PROBLEM: .getroot() uses actual file as a root. I cannot find a way to use sentence node as a root. 
+PROBLEM: .getroot() uses actual file as a root. I cannot find a way to use sentence node as a root.
+
+__process_top_level_negs_SP.py__: A copy of __try_this.py__ which processes the entire Spanish corpus. Currently, it counts the number of top level neg_structures and creates as many copies of a sentence as there neg_structures.
+
+Current stats:
+- 3076 all_neg_sents
+- 4113 newly collected sents
+- 4327 all_neg_structures
+- 4327 nested_neg_sents
+- 214 lost neg_structures
+- (in my thesis I had collected 2197 OneScope sents)
