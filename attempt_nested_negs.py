@@ -39,7 +39,10 @@ class SentenceParser():
                         elif el_in_scope.tag == 'negexp':
                             for neg in el_in_scope.iter():
                                 if neg.get('wd'):
-                                    self.split_tokens(neg, 1, 0, up=True)
+                                    if len(neg.get('wd').split('_')) > 1:
+                                        self.split_tokens(neg, 2, 0, up=True)
+                                    else:
+                                        self.split_tokens(neg, 1, 0, up=True)
 
                         elif el_in_scope.tag == 'neg_structure':
                             self.turn += 1
@@ -59,7 +62,10 @@ class SentenceParser():
                 elif el_in_neg_structure.tag == 'negexp':
                     for neg in el_in_neg_structure.iter():
                         if neg.get('wd'):
-                            self.split_tokens(neg, 1, 0, up=True)
+                            if len(neg.get('wd').split('_')) > 1:
+                                self.split_tokens(neg, 2, 0, up=True)
+                            else:
+                                self.split_tokens(neg, 1, 0, up=True)
 
                 else:
                     for el in el_in_neg_structure.iter():
