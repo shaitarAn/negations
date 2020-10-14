@@ -4,9 +4,9 @@
 __author__ = "Anastassia Shaitarova"
 
 
-# import xml.etree.ElementTree as ET
 from lxml import etree
 from pathlib import Path
+import os
 
 
 class SentenceParser():
@@ -32,91 +32,44 @@ class SentenceParser():
                         # if cue is a multiword it has attribute 'discid="1n/c"'
                         if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
                             for neg in el_in_scope.iter():
-                                try:
-                                    if neg.get('wd'):
-                                        # print(neg.get('wd'))
-                                        self.tokens.append(neg.get('wd').upper())
-                                        self.cues.append(2)
-                                        self.scope.append(0)
-                                except:
-                                    pass
+                                if neg.get('wd'):
+                                    self.split_tokens(neg, 2, 0, up=True)
 
                         # regular cue has no attribute
                         elif el_in_scope.tag == 'negexp':
                             for neg in el_in_scope.iter():
-                                try:
-                                    if neg.get('wd'):
-                                        # print('I AM HERE', neg.get('wd'))
-                                        self.tokens.append(neg.get('wd').upper())
-                                        self.cues.append(1)
-                                        self.scope.append(0)
-                                except:
-                                    pass
+                                if neg.get('wd'):
+                                    self.split_tokens(neg, 1, 0, up=True)
 
                         elif el_in_scope.tag == 'neg_structure':
-                            self.negs += 1
                             self.turn += 1
-                            print('NESTED', self.negs, self.turn)
-                            if self.negs == self.turn:
-                                print('GO TO NESTED')
-                                self.parse_neg_structure(el_in_scope)
-                                # nested = SentenceParser.parse_neg_structure(el_in_scope)
-                                # self.negs = nested.negs
-                                # self.turn = nested.turn
+                            self.parse_neg_structure(el_in_scope)
 
                         else:
                             for neg in el_in_scope.iter():
-                                try:
-                                    if neg.get('wd'):
-                                        # print(neg.get('wd'))
-                                        self.tokens.append(neg.get('wd'))
-                                        self.cues.append(3)
-                                        self.scope.append(1)
-                                except:
-                                    pass
+                                if neg.get('wd'):
+                                    self.split_tokens(neg, 3, 1)
 
                 elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
                     for neg in el_in_neg_structure.iter():
-                        try:
-                            if neg.get('wd'):
-                                # print(neg.get('wd'))
-                                self.tokens.append(neg.get('wd').upper())
-                                self.cues.append(2)
-                                self.scope.append(0)
-                        except:
-                            pass
+                        if neg.get('wd'):
+                            self.split_tokens(neg, 2, 0, up=True)
 
                 # regular cue has no attribute
                 elif el_in_neg_structure.tag == 'negexp':
                     for neg in el_in_neg_structure.iter():
-                        try:
-                            if neg.get('wd'):
-                                # print(neg.get('wd'))
-                                self.tokens.append(neg.get('wd').upper())
-                                self.cues.append(1)
-                                self.scope.append(0)
-                        except:
-                            pass
+                        if neg.get('wd'):
+                            self.split_tokens(neg, 1, 0, up=True)
 
                 else:
                     for el in el_in_neg_structure.iter():
-                        try:
-                            if el.get('wd'):
-                                self.tokens.append(el.get('wd'))
-                                self.cues.append(3)
-                                self.scope.append(0)
-                        except:
-                            pass
+                        if el.get('wd'):
+                            self.split_tokens(el, 3, 0)
 
         else:
             for el_in_neg_structure in neg_structure.iter():
-                try:
-                    if el_in_neg_structure.get('wd'):
-                        self.tokens.append(el_in_neg_structure.get('wd'))
-                        self.cues.append(3)
-                        self.scope.append(0)
-                except:
-                    pass
+                if el_in_neg_structure.get('wd'):
+                    self.split_tokens(el_in_neg_structure, 3, 0)
 
     def process_sentence(self):
 
@@ -128,23 +81,31 @@ class SentenceParser():
                     self.parse_neg_structure(element)
 
                 elif element.get('wd'):
-                    self.tokens.append(element.get('wd'))
-                    self.cues.append(3)
-                    self.scope.append(0)
+                    self.split_tokens(element, 3, 0)
 
         except TypeError:
             pass
+
+    def split_tokens(self, node, cue, scope, up=False):
+        for token in node.get('wd').split('_'):
+            if up:
+                self.tokens.append(token.upper())
+            else:
+                self.tokens.append(token)
+            self.cues.append(cue)
+            self.scope.append(scope)
 
 
 def iter_sentences(infile):
 
     tree = etree.parse(infile)
+    collected_negation_events = 0
 
     for sentence in tree.findall('.//sentence'):
-        negation_events = sum(1 for x in sentence.iter('neg_structure'))
+        negation_events = sum(1 for x in sentence.findall('neg_structure'))
+        collected_negation_events += negation_events
         reslist = list(sentence.iter())
         text_tokens = [x.get('wd') for x in reslist if x.get('wd')]
-        text = ' '.join([x.get('wd') for x in reslist if x.get('wd')])
 
         if negation_events > 0:
             print('negation_events: ', negation_events)
@@ -156,19 +117,38 @@ def iter_sentences(infile):
                 print(sent.scope)
                 print()
 
-        print('***************************')
+            print('***************************')
+
+    return collected_negation_events
 
 
 def main():
 
+    new_sents = 0
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    article = format('test.xml')
+    # article = format('test.xml')
     # article = format(
     # '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/peliculas/yes_4_12.tbf.xml')
+    article = format(
+        '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
 
-    iter_sentences(article)
+    if os.path.isdir(article):
+
+        for dir_name in os.listdir(article):
+            if '.' not in dir_name:
+                for f_name in os.listdir(article + "/" + dir_name):
+                    my_file_name = article + '/' + dir_name + '/' + f_name
+                    # file_name = dir_name + '/' + f_name
+
+                    negation_events = iter_sentences(my_file_name)
+                    new_sents += negation_events
+
+    else:
+        iter_sentences(article)
+
+    print('newly collected sents', '\t', new_sents)
 
 
 if __name__ == '__main__':
