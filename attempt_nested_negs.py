@@ -7,6 +7,7 @@ __author__ = "Anastassia Shaitarova"
 from lxml import etree
 from pathlib import Path
 import os
+import json
 
 
 class SentenceParser():
@@ -18,6 +19,27 @@ class SentenceParser():
         self.tokens = []
         self.cues = []
         self.scope = []
+
+    def parse_nested_structure(self, neg_structure):
+
+        sent = []
+        for element in self.sentence.iter():
+            element_path = element.getroottree().getpath(element)
+            neg_structure_path = neg_structure.getroottree().getpath(neg_structure)
+            if element_path == neg_structure_path:
+                # pass
+                print(element, self.turn)
+                for neg in element.iter():
+                    if neg.get('wd'):
+                        sent.append(neg.get('wd').upper())
+
+            else:
+                for neg in element:
+                    if neg.get('wd'):
+                        sent.append(neg.get('wd'))
+
+        print(len(sent), ' '.join(sent))
+        print()
 
     def parse_neg_structure(self, neg_structure):
 
@@ -44,9 +66,10 @@ class SentenceParser():
                                     else:
                                         self.split_tokens(neg, 1, 0, up=True)
 
-                        elif el_in_scope.tag == 'neg_structure':
-                            self.turn += 1
-                            self.parse_neg_structure(el_in_scope)
+                        # elif el_in_scope.tag == 'neg_structure':
+                            # self.turn += 1
+                            # self.parse_nested_structure(el_in_scope)
+                            # self.parse_neg_structure(el_in_scope)
 
                         else:
                             for neg in el_in_scope.iter():
@@ -134,11 +157,11 @@ def main():
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    # article = format('test.xml')
+    article = format('test.xml')
     # article = format(
     # '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/peliculas/yes_4_12.tbf.xml')
-    article = format(
-        '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
+    # article = format(
+    #     '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
 
     if os.path.isdir(article):
 
