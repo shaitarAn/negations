@@ -48,10 +48,10 @@ def process_sentence(sentence, i, negation_events):
                                     for neg in el_in_scope.iter():
                                         try:
                                             if neg.get('wd'):
-                                                # print(neg.get('wd'))
-                                                tokens.append(neg.get('wd').upper())
-                                                cues.append(2)
-                                                scope.append(0)
+                                                for token in neg.get('wd').split('_'):
+                                                    tokens.append(token.upper())
+                                                    cues.append(2)
+                                                    scope.append(0)
                                         except:
                                             pass
 
@@ -60,10 +60,10 @@ def process_sentence(sentence, i, negation_events):
                                     for neg in el_in_scope.iter():
                                         try:
                                             if neg.get('wd'):
-                                                # print(neg.get('wd'))
-                                                tokens.append(neg.get('wd').upper())
-                                                cues.append(1)
-                                                scope.append(0)
+                                                for token in neg.get('wd').split('_'):
+                                                    tokens.append(token.upper())
+                                                    cues.append(1)
+                                                    scope.append(0)
                                         except:
                                             pass
 
@@ -71,10 +71,10 @@ def process_sentence(sentence, i, negation_events):
                                     for neg in el_in_scope.iter():
                                         try:
                                             if neg.get('wd'):
-                                                # print(neg.get('wd'))
-                                                tokens.append(neg.get('wd'))
-                                                cues.append(3)
-                                                scope.append(1)
+                                                for token in neg.get('wd').split('_'):
+                                                    tokens.append(token)
+                                                    cues.append(3)
+                                                    scope.append(1)
                                         except:
                                             pass
 
@@ -82,10 +82,10 @@ def process_sentence(sentence, i, negation_events):
                             for neg in el_in_neg_structure.iter():
                                 try:
                                     if neg.get('wd'):
-                                        # print(neg.get('wd'))
-                                        tokens.append(neg.get('wd').upper())
-                                        cues.append(2)
-                                        scope.append(0)
+                                        for token in neg.get('wd').split('_'):
+                                            tokens.append(token.upper())
+                                            cues.append(2)
+                                            scope.append(0)
                                 except:
                                     pass
 
@@ -94,10 +94,10 @@ def process_sentence(sentence, i, negation_events):
                             for neg in el_in_neg_structure.iter():
                                 try:
                                     if neg.get('wd'):
-                                        # print(neg.get('wd'))
-                                        tokens.append(neg.get('wd').upper())
-                                        cues.append(1)
-                                        scope.append(0)
+                                        for token in neg.get('wd').split('_'):
+                                            tokens.append(token.upper())
+                                            cues.append(1)
+                                            scope.append(0)
                                 except:
                                     pass
 
@@ -105,9 +105,10 @@ def process_sentence(sentence, i, negation_events):
                             for el in el_in_neg_structure.iter():
                                 try:
                                     if el.get('wd'):
-                                        tokens.append(el.get('wd'))
-                                        cues.append(3)
-                                        scope.append(0)
+                                        for token in el.get('wd').split('_'):
+                                            tokens.append(token)
+                                            cues.append(3)
+                                            scope.append(0)
                                 except:
                                     pass
 
@@ -115,17 +116,19 @@ def process_sentence(sentence, i, negation_events):
                     for el_in_neg_structure in element.iter():
                         try:
                             if el_in_neg_structure.get('wd'):
-                                tokens.append(el_in_neg_structure.get('wd'))
-                                cues.append(3)
-                                scope.append(0)
+                                for token in el_in_neg_structure.get('wd').split('_'):
+                                    tokens.append(token)
+                                    cues.append(3)
+                                    scope.append(0)
                         except:
                             pass
 
             # collect other words in the sentence
             elif element.get('wd'):
-                tokens.append(element.get('wd'))
-                cues.append(3)
-                scope.append(0)
+                for token in element.get('wd').split('_'):
+                    tokens.append(token)
+                    cues.append(3)
+                    scope.append(0)
 
     except TypeError:
         pass
@@ -166,6 +169,7 @@ for dir_name in os.listdir(article):
                 text = ' '.join([x.get('wd') for x in reslist if x.get('wd')])
 
                 if negation_events > 0:
+                    print(file_name)
                     print('negation_events: ', negation_events)
                     for i in range(negation_events):
                         tokens, cues, scope = process_sentence(sentence, i + 1, negation_events)
