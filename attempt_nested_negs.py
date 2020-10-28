@@ -98,27 +98,19 @@ class SentenceParser():
             self.cues.append(cue)
             self.scope.append(scope)
 
-    # def parse_nested_structure(self, neg_structure):
-    #
-    #     sent = []
-    #     for element in self.sentence:
-    #         for neg in element.iter():
-    #             if neg.get('wd'):
-    #                 sent.append(neg.get('wd').upper())
-    #
-    #     print(len(sent), ' '.join(sent))
-    #     print()
-
 
 def get_depth(elem):
     # from https://stackoverflow.com/questions/39112938/parse-hierarchical-xml-tags
+    path = []
+    # if elem.get('wd'):
+    #     path.append(elem.get('wd'))
     parent = elem.getparent()
     # print(elem.tag, parent.tag)
-    path = [parent.tag]
+    path.append(parent)
     while parent is not None:
         parent = parent.getparent()
         if parent is not None:
-            path.append(parent.tag)
+            path.append(parent)
 
     return path
 
@@ -126,7 +118,9 @@ def get_depth(elem):
 def iter_sentences(infile):
 
     tree = etree.parse(infile)
-    collected_negation_events = 0
+    leve1_negation_events = 0
+    all_negs = 0
+    all_sents = []
 
     for sentence in tree.findall('.//sentence'):
 
@@ -134,7 +128,9 @@ def iter_sentences(infile):
 
         negs_all = [elem for elem in sentence.iter() if elem.tag == "neg_structure"]
 
-        collected_negation_events += len(negs_1level)
+        leve1_negation_events += len(negs_1level)
+        all_negs += len(negs_all)
+
         reslist = list(sentence.iter())
         text_tokens = [x.get('wd') for x in reslist if x.get('wd')]
 
@@ -146,48 +142,48 @@ def iter_sentences(infile):
             for i in range(len(negs_1level)):
                 sent = SentenceParser(sentence, i + 1)
                 sent.process_sentence()
+                all_sents.append(sent.tokens)
                 print(len(sent.tokens), len(text_tokens), ' '.join(sent.tokens))
                 print(sent.cues)
                 print(sent.scope)
                 print()
 
-            nested_sentence = []
-            nested_cues = []
-            nested_scope = []
-            for neg in negs_nested:
-                sent_nested = SentenceParser(sentence, 1)
-                for elem in sentence.iter():
-                    if elem == neg:
-                        sent_nested.parse_neg_structure(neg)
-                        nested_sentence.extend(sent_nested.tokens)
-                        nested_cues.extend(sent_nested.cues)
-                        nested_scope.extend(sent_nested.scope)
-                    else:
-                        if elem.get('wd'):
-                            if sum(1 for x in get_depth(elem) if x == 'neg_structure') < 2:
-                                nested_sentence.append(elem.get('wd'))
-                                nested_cues.append(3)
-                                nested_scope.append(0)
-                                # print(elem.get('wd'), get_depth(elem))
-            print(len(nested_sentence), nested_sentence)
-            print(nested_cues)
-            print(nested_scope)
+            if len(negs_1level) != len(negs_all):
+                for neg in negs_nested:
+                    sent_nested = SentenceParser(sentence, 1)
+                    for elem in sentence.iter():
+                        if elem == neg:
+                            sent_nested.parse_neg_structure(neg)
+                        else:
+                            if elem.get('wd'):
+                                if neg not in get_depth(elem):
+                                    sent_nested.split_tokens(elem, 3, 0)
+
+                    all_sents.append(sent_nested.tokens)
+                    print()
+                    print(len(sent_nested.tokens), ' '.join(sent_nested.tokens))
+                    print(sent_nested.cues)
+                    print(sent_nested.scope)
+                    print()
+
             print('***************************')
 
-    return collected_negation_events
+    return leve1_negation_events, all_negs, all_sents
 
 
 def main():
 
-    new_sents = 0
+    negs1 = 0
+    negsall = 0
+    all_sentences = []
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    article = format('test.xml')
+    # article = format('test.xml')
     # article = format(
     # '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/peliculas/yes_4_12.tbf.xml')
-    # article = format(
-    #     '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
+    article = format(
+        '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
 
     if os.path.isdir(article):
 
@@ -197,13 +193,20 @@ def main():
                     my_file_name = article + '/' + dir_name + '/' + f_name
                     # file_name = dir_name + '/' + f_name
 
-                    negation_events = iter_sentences(my_file_name)
-                    new_sents += negation_events
+                    negation_events, all_negs, all_sents = iter_sentences(my_file_name)
+                    negs1 += negation_events
+                    negsall += all_negs
+                    all_sentences.extend(all_sents)
 
     else:
-        iter_sentences(article)
+        negation_events, all_negs, all_sents = iter_sentences(article)
+        negs1 += negation_events
+        negsall += all_negs
+        all_sentences.extend(all_sents)
 
-    print('newly collected sents', '\t', new_sents)
+    print('total leve1_negation_events', '\t', negs1)
+    print('All neg structures', negsall)
+    print(len(all_sentences))
 
 
 if __name__ == '__main__':
