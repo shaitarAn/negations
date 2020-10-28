@@ -4,7 +4,8 @@
 __author__ = "Anastassia Shaitarova"
 
 
-from lxml import etree
+# from lxml import etree
+import xml.etree.ElementTree as ET
 from pathlib import Path
 import os
 import json
@@ -36,6 +37,8 @@ class SentenceParser():
         return my_dict
 
     def parse_neg_structure(self, neg_structure):
+
+        print(neg_structure)
 
         self.negs += 1
         if self.negs == self.turn:
@@ -130,18 +133,25 @@ def get_depth(element):
 
 def iter_sentences(infile):
 
-    tree = etree.parse(infile)
+    tree = ET.parse(infile)
     collected_negation_events = 0
 
     for sentence in tree.findall('.//sentence'):
-        negation_events = sum(1 for x in sentence.findall('neg_structure'))
-        collected_negation_events += negation_events
+
+        negs_1level = [x for x in sentence.findall('neg_structure')]
+
+        negs_all = [elem for elem in sentence.iter() if elem.tag == "neg_structure"]
+
+        collected_negation_events += len(negs_1level)
         reslist = list(sentence.iter())
         text_tokens = [x.get('wd') for x in reslist if x.get('wd')]
 
-        if negation_events > 0:
-            print('negation_events: ', negation_events)
-            for i in range(negation_events):
+        negs_nested = [elem for elem in negs_all if elem not in negs_1level]
+
+        if len(negs_1level) > 0:
+            print('neg_events top level: ', len(negs_1level))
+            print('neg_events all:', len(negs_all))
+            for i in range(len(negs_1level)):
                 sent = SentenceParser(sentence, i + 1)
                 sent.process_sentence()
                 print(len(sent.tokens), len(text_tokens), ' '.join(sent.tokens))
@@ -149,32 +159,14 @@ def iter_sentences(infile):
                 print(sent.scope)
                 print()
 
-            elems = sentence.xpath('.//neg_structure')
-            elem, path = get_depth(elems)
-            sent_nest = SentenceParser(sentence, 1)
-            for element in sentence:
-
-                if element.get('wd'):
-                    # self.split_tokens(element, 3, 0)
-                    sent_nest.tokens.append(element.get('wd'))
-                    sent_nest.cues.append(3)
-                    sent_nest.scope.append(0)
-
-                else:
-                    for negstr in sentence.iter():
-                        if negstr == elem:
-                            sent_nest.parse_neg_structure(elem)
-                            print('YES')
-                        if negstr.get('wd'):
-                            # self.split_tokens(element, 3, 0)
-                            sent_nest.tokens.append(negstr.get('wd'))
-                            sent_nest.cues.append(3)
-                            sent_nest.scope.append(0)
-
-            print(sent_nest.tokens)
-            print(sent_nest.cues)
-            print(sent_nest.scope)
-
+            for neg in negs_nested:
+                sent_nested = SentenceParser(sentence, 1)
+                for elem in sentence.iter():
+                    if elem == neg:
+                        sent_nested.parse_neg_structure(neg)
+                        print(sent_nested.tokens)
+                    elif elem.get('wd'):
+                        print(elem.get('wd'))
             print('***************************')
 
     return collected_negation_events
