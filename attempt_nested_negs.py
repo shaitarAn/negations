@@ -20,27 +20,6 @@ class SentenceParser():
         self.cues = []
         self.scope = []
 
-    def parse_nested_structure(self, neg_structure):
-
-        sent = []
-        for element in self.sentence.iter():
-            element_path = element.getroottree().getpath(element)
-            neg_structure_path = neg_structure.getroottree().getpath(neg_structure)
-            if element_path == neg_structure_path:
-                # pass
-                print(element, self.turn)
-                for neg in element.iter():
-                    if neg.get('wd'):
-                        sent.append(neg.get('wd').upper())
-
-            else:
-                for neg in element:
-                    if neg.get('wd'):
-                        sent.append(neg.get('wd'))
-
-        print(len(sent), ' '.join(sent))
-        print()
-
     def parse_neg_structure(self, neg_structure):
 
         self.negs += 1
@@ -65,11 +44,6 @@ class SentenceParser():
                                         self.split_tokens(neg, 2, 0, up=True)
                                     else:
                                         self.split_tokens(neg, 1, 0, up=True)
-
-                        # elif el_in_scope.tag == 'neg_structure':
-                            # self.turn += 1
-                            # self.parse_nested_structure(el_in_scope)
-                            # self.parse_neg_structure(el_in_scope)
 
                         else:
                             for neg in el_in_scope.iter():
@@ -124,6 +98,31 @@ class SentenceParser():
             self.cues.append(cue)
             self.scope.append(scope)
 
+    # def parse_nested_structure(self, neg_structure):
+    #
+    #     sent = []
+    #     for element in self.sentence:
+    #         for neg in element.iter():
+    #             if neg.get('wd'):
+    #                 sent.append(neg.get('wd').upper())
+    #
+    #     print(len(sent), ' '.join(sent))
+    #     print()
+
+
+def get_depth(element):
+    # from https://stackoverflow.com/questions/39112938/parse-hierarchical-xml-tags
+    for elem in element:
+        parent = elem.getparent()
+        path = [parent.tag]
+        while parent is not None:
+            parent = parent.getparent()
+            if parent is not None:
+                path.append(parent.tag)
+
+        if 'neg_structure' in path:
+            return elem
+
 
 def iter_sentences(infile):
 
@@ -145,6 +144,15 @@ def iter_sentences(infile):
                 print(sent.cues)
                 print(sent.scope)
                 print()
+
+            elems = sentence.xpath('.//neg_structure')
+            elem = get_depth(elems)
+            sent_nest = SentenceParser(sentence, 1)
+            sent_nest.parse_neg_structure(elem)
+            print(sent_nest.tokens)
+            print(sent_nest.cues)
+            print(sent_nest.scope)
+            print(elem)
 
             print('***************************')
 
