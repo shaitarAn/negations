@@ -7,7 +7,7 @@ __author__ = "Anastassia Shaitarova"
 from lxml import etree
 from pathlib import Path
 import os
-import json
+# import json
 
 
 class SentenceParser():
@@ -110,18 +110,17 @@ class SentenceParser():
     #     print()
 
 
-def get_depth(element):
+def get_depth(elem):
     # from https://stackoverflow.com/questions/39112938/parse-hierarchical-xml-tags
-    for elem in element:
-        parent = elem.getparent()
-        path = [parent.tag]
-        while parent is not None:
-            parent = parent.getparent()
-            if parent is not None:
-                path.append(parent.tag)
+    parent = elem.getparent()
+    # print(elem.tag, parent.tag)
+    path = [parent.tag]
+    while parent is not None:
+        parent = parent.getparent()
+        if parent is not None:
+            path.append(parent.tag)
 
-        if 'neg_structure' in path:
-            return elem
+    return path
 
 
 def iter_sentences(infile):
@@ -130,14 +129,21 @@ def iter_sentences(infile):
     collected_negation_events = 0
 
     for sentence in tree.findall('.//sentence'):
-        negation_events = sum(1 for x in sentence.findall('neg_structure'))
-        collected_negation_events += negation_events
+
+        negs_1level = [x for x in sentence.findall('neg_structure')]
+
+        negs_all = [elem for elem in sentence.iter() if elem.tag == "neg_structure"]
+
+        collected_negation_events += len(negs_1level)
         reslist = list(sentence.iter())
         text_tokens = [x.get('wd') for x in reslist if x.get('wd')]
 
-        if negation_events > 0:
-            print('negation_events: ', negation_events)
-            for i in range(negation_events):
+        negs_nested = [elem for elem in negs_all if elem not in negs_1level]
+
+        if len(negs_1level) > 0:
+            print('neg_events top level: ', len(negs_1level))
+            print('neg_events all:', len(negs_all))
+            for i in range(len(negs_1level)):
                 sent = SentenceParser(sentence, i + 1)
                 sent.process_sentence()
                 print(len(sent.tokens), len(text_tokens), ' '.join(sent.tokens))
@@ -145,15 +151,27 @@ def iter_sentences(infile):
                 print(sent.scope)
                 print()
 
-            elems = sentence.xpath('.//neg_structure')
-            elem = get_depth(elems)
-            sent_nest = SentenceParser(sentence, 1)
-            sent_nest.parse_neg_structure(elem)
-            print(sent_nest.tokens)
-            print(sent_nest.cues)
-            print(sent_nest.scope)
-            print(elem)
-
+            nested_sentence = []
+            nested_cues = []
+            nested_scope = []
+            for neg in negs_nested:
+                sent_nested = SentenceParser(sentence, 1)
+                for elem in sentence.iter():
+                    if elem == neg:
+                        sent_nested.parse_neg_structure(neg)
+                        nested_sentence.extend(sent_nested.tokens)
+                        nested_cues.extend(sent_nested.cues)
+                        nested_scope.extend(sent_nested.scope)
+                    else:
+                        if elem.get('wd'):
+                            if sum(1 for x in get_depth(elem) if x == 'neg_structure') < 2:
+                                nested_sentence.append(elem.get('wd'))
+                                nested_cues.append(3)
+                                nested_scope.append(0)
+                                # print(elem.get('wd'), get_depth(elem))
+            print(len(nested_sentence), nested_sentence)
+            print(nested_cues)
+            print(nested_scope)
             print('***************************')
 
     return collected_negation_events
