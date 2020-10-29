@@ -7,87 +7,62 @@ __author__ = "Anastassia Shaitarova"
 from lxml import etree
 from pathlib import Path
 import os
-# import json
+import json
 
 
 class SentenceParser():
 
-    def __init__(self, sentence, i):
+    def __init__(self, sentence):
         self.sentence = sentence
-        self.turn = i
-        self.negs = 0
         self.tokens = []
         self.cues = []
         self.scope = []
 
     def parse_neg_structure(self, neg_structure):
 
-        self.negs += 1
-        if self.negs == self.turn:
+        for el_in_neg_structure in list(neg_structure):
 
-            for el_in_neg_structure in list(neg_structure):
+            if el_in_neg_structure.tag == 'scope':
+                for el_in_scope in list(el_in_neg_structure):
 
-                if el_in_neg_structure.tag == 'scope':
-                    for el_in_scope in list(el_in_neg_structure):
+                    # if cue is a multiword it has attribute 'discid="1n/c"'
+                    if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
+                        for neg in el_in_scope.iter():
+                            if neg.get('wd'):
+                                self.split_tokens(neg, 2, 0, up=False)
 
-                        # if cue is a multiword it has attribute 'discid="1n/c"'
-                        if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
-                            for neg in el_in_scope.iter():
-                                if neg.get('wd'):
-                                    self.split_tokens(neg, 2, 0, up=True)
+                    # regular cue has no attribute
+                    elif el_in_scope.tag == 'negexp':
+                        for neg in el_in_scope.iter():
+                            if neg.get('wd'):
+                                if len(neg.get('wd').split('_')) > 1:
+                                    self.split_tokens(neg, 2, 0, up=False)
+                                else:
+                                    self.split_tokens(neg, 1, 0, up=False)
 
-                        # regular cue has no attribute
-                        elif el_in_scope.tag == 'negexp':
-                            for neg in el_in_scope.iter():
-                                if neg.get('wd'):
-                                    if len(neg.get('wd').split('_')) > 1:
-                                        self.split_tokens(neg, 2, 0, up=True)
-                                    else:
-                                        self.split_tokens(neg, 1, 0, up=True)
+                    else:
+                        for neg in el_in_scope.iter():
+                            if neg.get('wd'):
+                                self.split_tokens(neg, 3, 1)
 
+            elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
+                for neg in el_in_neg_structure.iter():
+                    if neg.get('wd'):
+                        self.split_tokens(neg, 2, 0, up=False)
+
+            # regular cue has no attribute
+            elif el_in_neg_structure.tag == 'negexp':
+                for neg in el_in_neg_structure.iter():
+                    if neg.get('wd'):
+                        if len(neg.get('wd').split('_')) > 1:
+                            self.split_tokens(neg, 2, 0, up=False)
                         else:
-                            for neg in el_in_scope.iter():
-                                if neg.get('wd'):
-                                    self.split_tokens(neg, 3, 1)
+                            self.split_tokens(neg, 1, 0, up=False)
 
-                elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
-                    for neg in el_in_neg_structure.iter():
-                        if neg.get('wd'):
-                            self.split_tokens(neg, 2, 0, up=True)
-
-                # regular cue has no attribute
-                elif el_in_neg_structure.tag == 'negexp':
-                    for neg in el_in_neg_structure.iter():
-                        if neg.get('wd'):
-                            if len(neg.get('wd').split('_')) > 1:
-                                self.split_tokens(neg, 2, 0, up=True)
-                            else:
-                                self.split_tokens(neg, 1, 0, up=True)
-
-                else:
-                    for el in el_in_neg_structure.iter():
-                        if el.get('wd'):
-                            self.split_tokens(el, 3, 0)
-
-        else:
-            for el_in_neg_structure in neg_structure.iter():
-                if el_in_neg_structure.get('wd'):
-                    self.split_tokens(el_in_neg_structure, 3, 0)
-
-    def process_sentence(self):
-
-        try:
-            for element in self.sentence:
-
-                # top level neg_structures
-                if element.tag == 'neg_structure':
-                    self.parse_neg_structure(element)
-
-                elif element.get('wd'):
-                    self.split_tokens(element, 3, 0)
-
-        except TypeError:
-            pass
+            else:
+                for el in el_in_neg_structure.iter():
+                    if el.get('wd'):
+                        self.split_tokens(el, 3, 0)
 
     def split_tokens(self, node, cue, scope, up=False):
         for token in node.get('wd').split('_'):
@@ -99,13 +74,10 @@ class SentenceParser():
             self.scope.append(scope)
 
 
-def get_depth(elem):
-    # from https://stackoverflow.com/questions/39112938/parse-hierarchical-xml-tags
+def get_path(elem):
+    # inspired by https://stackoverflow.com/questions/39112938/parse-hierarchical-xml-tags
     path = []
-    # if elem.get('wd'):
-    #     path.append(elem.get('wd'))
     parent = elem.getparent()
-    # print(elem.tag, parent.tag)
     path.append(parent)
     while parent is not None:
         parent = parent.getparent()
@@ -118,66 +90,69 @@ def get_depth(elem):
 def iter_sentences(infile):
 
     tree = etree.parse(infile)
-    leve1_negation_events = 0
-    all_negs = 0
-    all_sents = []
 
     for sentence in tree.findall('.//sentence'):
 
-        negs_1level = [x for x in sentence.findall('neg_structure')]
-
         negs_all = [elem for elem in sentence.iter() if elem.tag == "neg_structure"]
 
-        leve1_negation_events += len(negs_1level)
-        all_negs += len(negs_all)
+        if len(negs_all) > 0:
 
-        reslist = list(sentence.iter())
-        text_tokens = [x.get('wd') for x in reslist if x.get('wd')]
+            for neg in negs_all:
+                sent = SentenceParser(sentence)
+                for elem in sentence.iter():
+                    if elem == neg:
+                        sent.parse_neg_structure(neg)
+                    else:
+                        if elem.get('wd'):
+                            if neg not in get_path(elem):
+                                sent.split_tokens(elem, 3, 0)
 
-        negs_nested = [elem for elem in negs_all if elem not in negs_1level]
+                yield sent.tokens, sent.cues, sent.scope
 
-        if len(negs_1level) > 0:
-            print('neg_events top level: ', len(negs_1level))
-            print('neg_events all:', len(negs_all))
-            for i in range(len(negs_1level)):
-                sent = SentenceParser(sentence, i + 1)
-                sent.process_sentence()
-                all_sents.append(sent.tokens)
-                print(len(sent.tokens), len(text_tokens), ' '.join(sent.tokens))
-                print(sent.cues)
-                print(sent.scope)
-                print()
 
-            if len(negs_1level) != len(negs_all):
-                for neg in negs_nested:
-                    sent_nested = SentenceParser(sentence, 1)
-                    for elem in sentence.iter():
-                        if elem == neg:
-                            sent_nested.parse_neg_structure(neg)
-                        else:
-                            if elem.get('wd'):
-                                if neg not in get_depth(elem):
-                                    sent_nested.split_tokens(elem, 3, 0)
+def write_files(data):
 
-                    all_sents.append(sent_nested.tokens)
-                    print()
-                    print(len(sent_nested.tokens), ' '.join(sent_nested.tokens))
-                    print(sent_nested.cues)
-                    print(sent_nested.scope)
-                    print()
+    outpath = Path('output/')
+    outpath.mkdir(parents=True, exist_ok=True)
 
-            print('***************************')
+    outfile1 = outpath / Path('spanishALLdata.json')
+    textfile1 = outpath / Path('spanishALLsents.txt')
+    textfile2 = outpath / Path('spanishALLsents_anno.txt')
 
-    return leve1_negation_events, all_negs, all_sents
+    with open(outfile1, 'w') as outf1:
+        json.dump(data, outf1)
+
+    with open(textfile1, 'w', encoding='utf8') as outf:
+        for item in data:
+            outf.write(' '.join(item[0]) + '\n')
+
+    count = 0
+    with open(textfile2, 'w', encoding='utf8') as outf:
+        for item in data:
+            zipped = zip(item[0], item[1], item[2])
+            cue = ''
+            scope = ''
+            for t in zipped:
+                if t[1] != 3:
+                    cue += ' ' + str(t[0])
+                if t[2] != 0:
+                    scope += ' ' + str(t[0])
+            count += 1
+            outf.write(str(count) + '\t' + str(item[3]) + '\n')
+            outf.write(' '.join(item[0]) + '\n')
+            outf.write(str(item[1]) + '\n')
+            outf.write(str(item[2]) + '\n')
+            outf.write(cue.strip() + '\n')
+            outf.write(scope.strip() + '\n')
+            outf.write('\n')
 
 
 def main():
 
-    negs1 = 0
-    negsall = 0
     all_sentences = []
-    outpath = Path('output/')
-    outpath.mkdir(parents=True, exist_ok=True)
+    all_cues = []
+    all_scopes = []
+    all_files = []
 
     # article = format('test.xml')
     # article = format(
@@ -191,22 +166,22 @@ def main():
             if '.' not in dir_name:
                 for f_name in os.listdir(article + "/" + dir_name):
                     my_file_name = article + '/' + dir_name + '/' + f_name
-                    # file_name = dir_name + '/' + f_name
+                    file_name = dir_name + '/' + f_name
 
-                    negation_events, all_negs, all_sents = iter_sentences(my_file_name)
-                    negs1 += negation_events
-                    negsall += all_negs
-                    all_sentences.extend(all_sents)
+                    all_sentences.extend([sent[0] for sent in iter_sentences(my_file_name)])
+                    all_cues.extend([sent[1] for sent in iter_sentences(my_file_name)])
+                    all_scopes.extend([sent[2] for sent in iter_sentences(my_file_name)])
+                    all_files.extend([file_name for item in iter_sentences(my_file_name)])
 
     else:
-        negation_events, all_negs, all_sents = iter_sentences(article)
-        negs1 += negation_events
-        negsall += all_negs
+        all_negs, all_sents = iter_sentences(article)
         all_sentences.extend(all_sents)
 
-    print('total leve1_negation_events', '\t', negs1)
-    print('All neg structures', negsall)
-    print(len(all_sentences))
+    data = list(zip(all_sentences, all_cues, all_scopes, all_files))
+    # for item in data[:2]:
+    #     print(item)
+
+    write_files(data)
 
 
 if __name__ == '__main__':
