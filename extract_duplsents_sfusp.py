@@ -119,8 +119,10 @@ def write_files(data):
     textfile1 = outpath / Path('spanishALLsents.txt')
     textfile2 = outpath / Path('spanishALLsents_anno.txt')
 
+    json_data = [item[:3] for item in data]
+
     with open(outfile1, 'w') as outf1:
-        json.dump(data, outf1)
+        json.dump(json_data, outf1)
 
     with open(textfile1, 'w', encoding='utf8') as outf:
         for item in data:
