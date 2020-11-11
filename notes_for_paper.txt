@@ -3,3 +3,17 @@ before I had 914!
 
 ESSAI: 1079 neg sentences from my script.
     1064 on the site https://clementdalloux.fr/?page_id=28
+
+
+prodigy ner.manual SUPERANNO_PROJEKT.sqlite blank:ru output/russianBox.txt --label Cue,Scope
+
+extract test text from Sherlcok.
+Apparently, I use only train and dev data. My test files remained unused.
+
+133 is the len of Cardboard json
+
+
+I extracted intermediate representations of annotations from each corpus.
+I unified annotations a little:
+        - I excluded cues from scope in BIOSCOPE.
+        - I removed morphological annotations in Sherlock.

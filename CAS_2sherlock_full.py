@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 
 '''
-Converts the entire french CAS corpus into the format of SEM*12 corpus.
+Converts the entire french CAS or ESSAI corpus into the format of SEM*12 corpus.
 '''
 
 __author__ = "Anastassia Shaitarova"
@@ -134,7 +134,7 @@ df.insert(0, "chapter", np.nan)
 df.insert(6, "UDP", np.nan)
 
 # add dummy string within sentences
-df['chapter'].loc[df['word'].notnull()] = 'cas'
+df['chapter'].loc[df['word'].notnull()] = corpus.lower()
 df['UDP'].loc[df['word'].notnull()] = 'dummy'
 print(df.info())
 
