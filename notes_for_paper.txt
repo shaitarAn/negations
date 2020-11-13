@@ -17,3 +17,13 @@ I extracted intermediate representations of annotations from each corpus.
 I unified annotations a little:
         - I excluded cues from scope in BIOSCOPE.
         - I removed morphological annotations in Sherlock.
+
+prodigy my.manual SUPERANNO_PROJEKT.sqlite blank:ru output.jsonl --label Cue,Scope -F my_prodigy_manual.p
+
+
+These will have to be turned into NegBERT's intermediate annotation:
+
+"Сам я за время службы в Индии привык переносить жару лучше, чем холод, и тридцать три градуса выше нуля не особенно меня тяготили. "
+"spans":[{"start":73,"end":103,"token_start":16,"token_end":20,"label":"Scope"},
+        {"start":104,"end":106,"token_start":21,"token_end":21,"label":"Cue"},
+        {"start":107,"end":129,"token_start":22,"token_end":24,"label":"Scope"}]
