@@ -13,9 +13,10 @@ from bs4 import BeautifulSoup as BS
 from spacy.tokens import Doc
 import jsonlines
 
-
-# anno = "test_sherlock.json"
+# russian sentences to annotate
 anno = "output/SHERLOCK_cardbord.json"
+
+# parallel Rus-Eng sentences
 parallels = "corpora/box.en.ru.txt"
 
 rusent = re.compile(r'>(.*)<')

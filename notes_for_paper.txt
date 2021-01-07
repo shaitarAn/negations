@@ -1,11 +1,18 @@
+# to run
+
+1. prepare for annotation
+conda activate prodigy
+prodigy my.manual SUPERANNO_PROJEKT.sqlite blank:ru data4prodigy.jsonl --label Cue,Scope -F my_prodigy_manual.py
+
+
+
+
 CAS: 945 negation events turned into sentences
 before I had 914!
 
 ESSAI: 1079 neg sentences from my script.
-    1064 on the site https://clementdalloux.fr/?page_id=28
+       1064 on the site https://clementdalloux.fr/?page_id=28
 
-
-prodigy ner.manual SUPERANNO_PROJEKT.sqlite blank:ru output/russianBox.txt --label Cue,Scope
 
 extract test text from Sherlcok.
 Apparently, I use only train and dev data. My test files remained unused.
@@ -18,7 +25,7 @@ I unified annotations a little:
         - I excluded cues from scope in BIOSCOPE.
         - I removed morphological annotations in Sherlock.
 
-prodigy my.manual SUPERANNO_PROJEKT.sqlite blank:ru output.jsonl --label Cue,Scope -F my_prodigy_manual.p
+
 
 
 These will have to be turned into NegBERT's intermediate annotation:
@@ -27,3 +34,16 @@ These will have to be turned into NegBERT's intermediate annotation:
 "spans":[{"start":73,"end":103,"token_start":16,"token_end":20,"label":"Scope"},
         {"start":104,"end":106,"token_start":21,"token_end":21,"label":"Cue"},
         {"start":107,"end":129,"token_start":22,"token_end":24,"label":"Scope"}]
+
+
+Idea: involve Michi?
+
+multiple languages
+interpreting the model?
+	- saliency: gradient-based, erasure-based, etc.
+	- attention
+	- perturbation
+use an lstm in fairseq as baseline?
+Linguistic or syntactic out-of-distribution generalization (leftward scope?) => to observe variability. (BERTs of a feather do not generalize together: Large variability in generalization across models with similar test set performance. R. Thomas Mccoy, Junghyun Min and Tal Linzen.)
+
+LTH (Lottery Ticket Hypothesis): pruning BERT? (When BERT Plays the Lottery, All Tickets Are Winning!)
