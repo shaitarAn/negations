@@ -18,6 +18,22 @@ class SentenceParser():
         self.cues = []
         self.scope = []
 
+    def parse_cue(self, element):
+
+        if element.attrib:
+            for neg in element.iter():
+                if neg.get('wd'):
+                    self.split_tokens(neg, 2, 0, up=False)
+
+        # regular cue has no attribute
+        else:
+            for neg in element.iter():
+                if neg.get('wd'):
+                    if len(neg.get('wd').split('_')) > 1:
+                        self.split_tokens(neg, 2, 0, up=False)
+                    else:
+                        self.split_tokens(neg, 1, 0, up=False)
+
     def parse_neg_structure(self, neg_structure):
 
         for el_in_neg_structure in list(neg_structure):
@@ -26,41 +42,19 @@ class SentenceParser():
                 for el_in_scope in list(el_in_neg_structure):
 
                     # if cue is a multiword it has attribute 'discid="1n/c"'
-                    if el_in_scope.tag == 'negexp' and el_in_scope.attrib:
-                        for neg in el_in_scope.iter():
-                            if neg.get('wd'):
-                                self.split_tokens(neg, 2, 0, up=False)
-
-                    # regular cue has no attribute
-                    elif el_in_scope.tag == 'negexp':
-                        for neg in el_in_scope.iter():
-                            if neg.get('wd'):
-                                if len(neg.get('wd').split('_')) > 1:
-                                    self.split_tokens(neg, 2, 0, up=False)
-                                else:
-                                    self.split_tokens(neg, 1, 0, up=False)
+                    if el_in_scope.tag == 'negexp':
+                        self.parse_cue(el_in_scope)
 
                     elif el_in_scope.tag == 'event':
                         for n in el_in_scope:
                             if n.tag == 'negexp':
-                                for el in n:
-                                    if el.get('wd'):
-                                        print(el.get('wd'))
-                                        if len(el.get('wd').split('_')) > 1:
-                                            self.split_tokens(el, 2, 0, up=False)
-                                        else:
-                                            self.split_tokens(el, 1, 0, up=False)
+                                self.parse_cue(n)
 
                             elif n.tag == 'scope':
                                 for elem in n:
                                     if elem.tag == 'negexp':
-                                        for el in elem:
-                                            if el.get('wd'):
-                                                # print(el.get('wd'))
-                                                if len(el.get('wd').split('_')) > 1:
-                                                    self.split_tokens(el, 2, 0, up=False)
-                                                else:
-                                                    self.split_tokens(el, 1, 0, up=False)
+                                        self.parse_cue(elem)
+
                                     elif elem.get('wd'):
                                         self.split_tokens(elem, 3, 1, up=False)
 
@@ -70,19 +64,8 @@ class SentenceParser():
                     elif el_in_scope.get('wd'):
                         self.split_tokens(el_in_scope, 3, 1)
 
-            elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
-                for neg in el_in_neg_structure.iter():
-                    if neg.get('wd'):
-                        self.split_tokens(neg, 2, 0, up=False)
-
-            # regular cue has no attribute
             elif el_in_neg_structure.tag == 'negexp':
-                for neg in el_in_neg_structure.iter():
-                    if neg.get('wd'):
-                        if len(neg.get('wd').split('_')) > 1:
-                            self.split_tokens(neg, 2, 0, up=False)
-                        else:
-                            self.split_tokens(neg, 1, 0, up=False)
+                self.parse_cue(el_in_neg_structure)
 
             else:
                 for el in el_in_neg_structure.iter():
@@ -184,9 +167,9 @@ def main():
     all_files = []
 
     # article = format('test.xml')
-    article = '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/hoteles/no_1_7.tbf.xml'
-    # article = format(
-    # '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
+    # article = '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/hoteles/no_1_7.tbf.xml'
+    article = format(
+        '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
 
     if os.path.isdir(article):
 
