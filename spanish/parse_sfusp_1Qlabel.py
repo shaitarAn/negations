@@ -23,14 +23,14 @@ class SentenceParser():
         if element.attrib:
             for neg in element.iter():
                 if neg.get('wd'):
-                    self.split_tokens(neg, 2, 0, up=False)
+                    self.split_tokens(neg, 1, 0, up=False)
 
         # regular cue has no attribute
         else:
             for neg in element.iter():
                 if neg.get('wd'):
                     if len(neg.get('wd').split('_')) > 1:
-                        self.split_tokens(neg, 2, 0, up=False)
+                        self.split_tokens(neg, 1, 0, up=False)
                     else:
                         self.split_tokens(neg, 1, 0, up=False)
 
@@ -125,9 +125,9 @@ def write_files(data):
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    outfile1 = outpath / Path('spanishALLdata.json')
+    outfile1 = outpath / Path('spanishALL_1label.json')
     textfile1 = outpath / Path('spanishALLsents.txt')
-    textfile2 = outpath / Path('spanishALLsents_anno.txt')
+    textfile2 = outpath / Path('spanishALLsents_1label_anno.txt')
 
     json_data = [item[:3] for item in data]
 

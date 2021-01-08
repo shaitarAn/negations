@@ -1,5 +1,44 @@
 <review>
-  <sentence complex="yes">
+    <sentence complex="no">
+       <neg_structure polarity="neutral" change="no" value="contrast">
+         <scope>
+           <negexp discid="1n">
+           <r lem="no" name="r" pos="rn" postype="negative" wd="No"/>
+         </negexp>
+           <event>
+             <v lem="existir" mood="indicative" name="v" num="s" person="3" pos="vmip3s0" postype="main" tense="present" wd="existe"/>
+             <scope>
+               <negexp discid="1c">
+           <d gen="f" lem="ninguno" name="d" num="s" pos="di0fs0" postype="indefinite" wd="ninguna"/>
+         <d gen="f" lem="otro" name="d" num="s" pos="di0fs0" postype="indefinite" wd="otra"/>
+           </negexp>
+               <event>
+                 <n gen="f" lem="forma" name="n" num="s" pos="ncfs000" postype="common" wd="forma"/>
+               </event>
+               <s complex="no" lem="de" name="s" pos="sps00" postype="preposition" wd="de"/>
+               <v lem="llegar" mood="infinitive" name="v" pos="vmn0000" postype="main" wd="llegar"/>
+               <s complex="no" lem="a" name="s" pos="sps00" postype="preposition" wd="a"/>
+               <d gen="m" lem="el" name="d" num="s" pos="da0ms0" postype="article" wd="el"/>
+               <n gen="m" lem="aeropuerto" name="n" num="s" pos="ncms000" postype="common" wd="aeropuerto"/>
+             </scope>
+           </event>
+         </scope>
+         <negexp discid="1c">
+
+         <s lem="que_no_ser" name="p" pos="sps00" postype="preposition" wd="que_no_sea"/>
+         </negexp>
+
+         <s complex="no" lem="en" name="s" pos="sps00" postype="preposition" wd="en"/>
+         <n gen="m" lem="taxi" name="n" num="s" pos="ncms000" postype="common" wd="taxi"/>
+         <c lem="o" name="c" pos="cc" postype="coordinating" wd="o"/>
+         <s complex="no" lem="en" name="s" pos="sps00" postype="preposition" wd="en"/>
+         <d gen="c" lem="su" name="d" num="s" person="3" pos="dp3cs0" postype="possessive" wd="su"/>
+         <n gen="m" lem="transfer" name="n" num="s" pos="ncms000" postype="common" wd="transfer"/>
+       </neg_structure>
+
+       <f lem="." name="f" pos="fp" punct="period" wd="."/>
+     </sentence>
+  <!-- <sentence complex="yes">
     <p gen="f" lem="ellos" name="p" num="p" person="3" pos="pp3fp000" postype="personal" wd="Ellas"/>
     <p gen="c" lem="te" name="p" num="s" person="2" pos="pp2cs000" postype="personal" wd="te"/>
     <v lem="poder" mood="indicative" name="v" num="p" person="3" pos="vmip3p0" postype="main" tense="present" wd="pueden"/>
@@ -26,7 +65,7 @@
     <d gen="m" lem="el" name="d" num="s" pos="da0ms0" postype="article" wd="el"/>
     <n gen="m" lem="papel" name="n" num="s" pos="ncms000" postype="common" wd="papel"/>
     <f lem="," name="f" pos="fc" punct="comma" wd=","/>
-    
+
     <neg_structure polarity="positive" polarity_modifier="increment" value="neg">
       <scope>
         <negexp>
@@ -48,7 +87,7 @@
         </neg_structure>
       </scope>
     </neg_structure>
-    
+
     <f lem="…" name="f" pos="fz" punct="mathsign" wd="…"/>
     <v lem="ser" mood="indicative" name="v" num="p" person="3" pos="vsip3p0" postype="semiauxiliary" tense="present" wd="son"/>
     <d gen="m" lem="el" name="d" num="s" pos="da0ms0" postype="article" wd="el"/>
@@ -69,14 +108,14 @@
     <n gen="f" lem="consecuencia" name="n" num="p" pos="ncfp000" postype="common" wd="consecuencias"/>
     <f lem="," name="f" pos="fc" punct="comma" wd=","/>
     <c lem="y" name="c" pos="cc" postype="coordinating" wd="y"/>
-    
+
     <p gen="f" lem="este" name="p" num="p" pos="pd0fp000" postype="demonstrative" wd="éstas"/>
     <neg_structure polarity="neutral" change="yes" value="neg">
       <scope>
         <negexp>
           <r lem="no" name="r" pos="rn" postype="negative" wd="no"/>
         </negexp>
-        
+
         <event>
           <p gen="c" lem="se" name="p" num="n" pos="p00cn000" wd="se"/>
           <v lem="poder" mood="indicative" name="v" num="p" person="3" pos="vmip3p0" postype="main" tense="present" wd="pueden"/>
@@ -84,30 +123,30 @@
         </event>
       </scope>
     </neg_structure>
-    
+
     <f lem="," name="f" pos="fc" punct="comma" wd=","/>
-    
+
     <neg_structure polarity="neutral" change="yes" value="neg">
       <scope>
         <negexp>
           <r lem="no" name="r" pos="rn" postype="negative" wd="no"/>
         </negexp>
-        
+
         <event>
           <p gen="c" lem="se" name="p" num="n" pos="p00cn000" wd="se"/>
           <v lem="poder" mood="indicative" name="v" num="s" person="3" pos="vmip3s0" postype="main" tense="present" wd="puede"/>
           <v lem="volver" mood="infinitive" name="v" pos="vmn0000" postype="main" wd="volver"/>
           <r lem="atrás" name="r" pos="rg" wd="atrás"/>
         </event>
-        
+
       </scope>
     </neg_structure>
-    
-    
-    
-    
+
+
+
+
     <f lem="." name="f" pos="fp" punct="period" wd="."/>
-  </sentence>
+  </sentence> -->
 <!--  <sentence complex="yes">
     <f lem="&quot;" name="f" pos="fe" punct="quotation" wd="&quot;"/>
     <neg_structure polarity="neutral" change="no" value="contrast">
@@ -148,11 +187,11 @@
       <d gen="m" lem="uno" name="d" num="s" pos="di0ms0" postype="indefinite" wd="un"/>
       <a gen="m" lem="falso" name="a" num="s" pos="aq0ms0" postype="qualificative" wd="falso"/>
       <n gen="c" lem="culpable" name="n" num="s" pos="nccs000" postype="common" wd="culpable"/>
-    </neg_structure>   
+    </neg_structure>
     <f lem="&quot;" name="f" pos="fe" punct="quotation" wd="&quot;"/>
     <f lem="." name="f" pos="fp" punct="period" wd="."/>
   </sentence>-->
-<!--<sentence complex="no">
+<sentence complex="no">
     <neg_structure polarity="negative" change="yes" value="neg">
       <scope>
       <negexp>
@@ -166,8 +205,8 @@
     </scope>
     </neg_structure>
     <f lem=":" name="f" pos="fd" punct="colon" wd=":"/>
-  </sentence>-->
-<!--  <sentence complex="no">
+  </sentence>
+ <sentence complex="no">
     <s complex="no" lem="además_de" name="s" pos="sps00" postype="preposition" wd="Además_de"/>
     <d gen="f" lem="el" name="d" num="p" pos="da0fp0" postype="article" wd="las"/>
     <n gen="f" lem="actuación" name="n" num="p" pos="ncfp000" postype="common" wd="actuaciones"/>
@@ -200,7 +239,7 @@
       <a gen="f" lem="matemático" name="a" num="s" pos="aq0fs0" postype="qualificative" wd="matemática"/>
     </scope>
     </neg_structure>
-    
+
     <f lem="," name="f" pos="fc" punct="comma" wd=","/>
     <c lem="pero" name="c" pos="cc" postype="coordinating" wd="pero"/>
     <c lem="que" name="c" pos="cs" postype="subordinating" wd="que"/>
@@ -212,5 +251,5 @@
     <r lem="bastante" name="r" pos="rg" wd="bastante"/>
     <a gen="c" lem="irrelevante" name="a" num="s" pos="aq0cs0" postype="qualificative" wd="irrelevante"/>
     <f lem="." name="f" pos="fp" punct="period" wd="."/>
-  </sentence>-->
+  </sentence>
 </review>

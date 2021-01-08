@@ -7,6 +7,39 @@ prodigy my.manual SUPERANNO_PROJEKT.sqlite blank:ru data4prodigy.jsonl --label C
 
 
 
+ANNOTATIONS:
+
+71	hoteles/no_2_20.tbf.xml
+A mi no me gustó , deberian hacer una revisión y adecuar la calidad de el hotel a las estrellas .
+no (cues)
+A mi me gustó (scope)
+
+for russian: у нас не было теории
+
+No existe ninguna otra de llegar a el aeropuerto que no sea en taxi o en su transfer .
+No ninguna otra que no sea (cues)
+existe de llegar a el aeropuerto (scope)
+
+No nos dieron ninguna facilidad.
+No ninguna (cues)
+nos dieron facilidad (scope)
+
+The value of <discid> is represented both numerically (1 in the example below), which indicates the numerical order of the discontinuous negative elements in that negative structure, and as a letter ‘n’ and ‘c’, where ‘n’ and ‘c’ indicate the first (nucleus or core) and second element of the negation respectively.
+
+
+
+Spanish:
+take out noneg
+Y bueno, casi no me quieren ni aceptar la tarifa web, me tuve que poner farruca, por no decir que al principio la chica incluso dudaba si tendría habitaciones para nosotros.
+And well, they almost don't even want me to accept the web rate, I had to get farruca, not to mention that at first the girl even doubted if she would have rooms for us.
+"por no decir que" (not to mention) is marked as negexp but neg_structure value is "NONEG"
+
+
+In SFU Review the phrase "not to mention" is marked for negation (for example in MUSIC/no11done.xml): "not" is a cue with type="negation" and the rest is scope.
+
+
+
+
 CAS: 945 negation events turned into sentences
 before I had 914!
 
