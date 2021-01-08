@@ -40,10 +40,35 @@ class SentenceParser():
                                 else:
                                     self.split_tokens(neg, 1, 0, up=False)
 
-                    else:
-                        for neg in el_in_scope.iter():
-                            if neg.get('wd'):
-                                self.split_tokens(neg, 3, 1)
+                    elif el_in_scope.tag == 'event':
+                        for n in el_in_scope:
+                            if n.tag == 'negexp':
+                                for el in n:
+                                    if el.get('wd'):
+                                        print(el.get('wd'))
+                                        if len(el.get('wd').split('_')) > 1:
+                                            self.split_tokens(el, 2, 0, up=False)
+                                        else:
+                                            self.split_tokens(el, 1, 0, up=False)
+
+                            elif n.tag == 'scope':
+                                for elem in n:
+                                    if elem.tag == 'negexp':
+                                        for el in elem:
+                                            if el.get('wd'):
+                                                # print(el.get('wd'))
+                                                if len(el.get('wd').split('_')) > 1:
+                                                    self.split_tokens(el, 2, 0, up=False)
+                                                else:
+                                                    self.split_tokens(el, 1, 0, up=False)
+                                    elif elem.get('wd'):
+                                        self.split_tokens(elem, 3, 1, up=False)
+
+                            elif n.get('wd'):
+                                self.split_tokens(n, 3, 1, up=False)
+
+                    elif el_in_scope.get('wd'):
+                        self.split_tokens(el_in_scope, 3, 1)
 
             elif el_in_neg_structure.tag == 'negexp' and el_in_neg_structure.attrib:
                 for neg in el_in_neg_structure.iter():
@@ -88,6 +113,8 @@ def get_path(elem):
 
 
 def iter_sentences(infile):
+
+    # breakpoint()
 
     tree = etree.parse(infile)
 
@@ -157,10 +184,9 @@ def main():
     all_files = []
 
     # article = format('test.xml')
+    article = '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/hoteles/no_1_7.tbf.xml'
     # article = format(
-    # '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/peliculas/yes_4_12.tbf.xml')
-    article = format(
-        '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
+    # '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/sp_SFU_Review_SP_NEG/')
 
     if os.path.isdir(article):
 
@@ -175,15 +201,25 @@ def main():
                     all_scopes.extend([sent[2] for sent in iter_sentences(my_file_name)])
                     all_files.extend([file_name for item in iter_sentences(my_file_name)])
 
+        data = list(zip(all_sentences, all_cues, all_scopes, all_files))
+
+        write_files(data)
+
     else:
-        all_negs, all_sents = iter_sentences(article)
-        all_sentences.extend(all_sents)
 
-    data = list(zip(all_sentences, all_cues, all_scopes, all_files))
-    # for item in data[:2]:
-    #     print(item)
+        # breakpoint()
 
-    write_files(data)
+        all_sentences.extend([sent[0] for sent in iter_sentences(article)])
+        all_cues.extend([sent[1] for sent in iter_sentences(article)])
+        all_scopes.extend([sent[2] for sent in iter_sentences(article)])
+
+        data = list(zip(all_sentences, all_cues, all_scopes))
+
+        for item in data:
+            print(item[0])
+            print(item[1])
+            print(item[2])
+            print()
 
 
 if __name__ == '__main__':
