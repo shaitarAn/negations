@@ -44,7 +44,8 @@ with open(parallels, 'r') as p, open(anno, 'r') as a, jsonlines.open('output.jso
         for sent in data:
             spans = []
 
-            if ' '.join(sent[0]) in line and 0 not in sent[1]:
+            if ' '.join(sent[0]) in line:
+                 # and 0 not in sent[1]
                 line = line.strip().split('\t')
                 mysent = ET.fromstring(line[0]).text
                 doc = nlp(mysent)
@@ -96,9 +97,21 @@ with open(parallels, 'r') as p, open(anno, 'r') as a, jsonlines.open('output.jso
                                   "spans": spans}]
                 }))
 
-                writer.write({
-                    "text": russian,
-                    "view_id": "ner_manual",
-                    "versions": [{"text": mysent,
-                                  "spans": spans}]
-                })
+                # writer.write({
+                #     "text": russian,
+                #     "view_id": "ner_manual",
+                #     "versions": [{"text": mysent,
+                #                   "spans": spans}]
+                # })
+
+        # line = line.split('\t')
+        print(type(line))
+        if isinstance(line, str):
+            print('@@@', line)
+        else:
+
+            soup = BS(line[1], features="html.parser")
+            russian = ''
+            for s in soup.find_all('s'):
+                russian += s.text + ' '
+            print('+++', russian)

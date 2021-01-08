@@ -3,3 +3,4 @@
 /old_models
 .DS_Store
 __pycache__/
+/non_prodigy_related_negs
