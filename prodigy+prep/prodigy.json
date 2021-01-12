@@ -1,0 +1,9 @@
+{
+  "db": "sqlite",
+  "db_settings": {
+    "sqlite": {
+      "name": "russian_anno.db",
+      "path": "/Users/anastassiashaitarova/Documents/work_projects/negations+/prodigy+prep/"
+    }
+  }
+}

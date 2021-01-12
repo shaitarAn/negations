@@ -2,6 +2,7 @@ import re
 import os
 import html
 import json
+# import random
 from pathlib import Path
 
 sfu_data = "/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/en_SFU_Review_Corpus_Negation_Speculation/"
@@ -86,8 +87,8 @@ def sfu_review(f_path):
                         scope_cues[-1][cue[i][0]] = 1
                     else:
                         for c in cue[i]:
-                            cue_cues[-1][c] = 1
-                            scope_cues[-1][c] = 1
+                            cue_cues[-1][c] = 2
+                            scope_cues[-1][c] = 2
                     scope_scopes.append([0] * len(sentence))
                     if i in scope.keys():
                         for s in scope[i]:
@@ -121,9 +122,9 @@ def write_files(data):
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    outfile1 = outpath / Path('SFU_1label.json')
+    outfile1 = outpath / Path('SFU_2label.json')
     textfile1 = outpath / Path('SFU_sents.txt')
-    textfile2 = outpath / Path('SFU_1label_anno.txt')
+    textfile2 = outpath / Path('SFU_2label_anno.txt')
 
     json_data = [item[:3] for item in data]
 
@@ -155,7 +156,7 @@ def write_files(data):
             outf.write('\n')
 
 
-def postprocess(zipped_data, file_names):
+def postprocess(zipped_data):
     newzippy = []
     dataout = []
     for item in zipped_data:
@@ -195,7 +196,7 @@ all_data = zip(sfu_tokens, sfu_cues, sfu_scopes, file_names)
 # for item in all_data:
 #     print(item)
 
-all_data = postprocess(all_data, file_names)
+all_data = postprocess(all_data)
 
 for item in all_data:
     print(item[0])

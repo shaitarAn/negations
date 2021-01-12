@@ -1,38 +1,32 @@
-import re
-import os
-import html
-import json
+# !/usr/bin/env python3
+# -*- coding: utf8 -*-
+
 from pathlib import Path
+import json
+import re
+import html
 
-sfu_data = "/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/en_SFU_Review_Corpus_Negation_Speculation/"
-TASK = "negation"
+'''
+Extracts tokens and annotations from the original corpus,
+creates a json file that is suitable for NegBERT.
+'''
 
+data1 = '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/en_bioscope/full_papers.xml'
+data2 = '/Users/anastassiashaitarova/Documents/thinkMASTER/datasets/abstracts.xml'
+data = [data1, data2]
 
-def clean_sent(word):
-    newword = ''
-    if not word.isascii() and len(word) > 1:
-        for w in word:
-            if not w.isascii():
-                # print(w, len(word))
-                newword += "'"
-            else:
-                # print('newword', newword)
-                newword += w
-        word = newword
-    elif not word.isascii():
-        word = 'ABRACADABRA'
-    return word
+TASK = 'negation'
 
 
-def sfu_review(f_path):
-    # print(f_path)
+def bioscope(f_path):
+
     file = open(f_path, encoding='utf-8')
     sentences = []
     for s in file:
         sentences += re.split("(<.*?>)", html.unescape(s))
-    # print(sentences)
     cue_sentence = []
     cue_cues = []
+    cue_only_data = []
     scope_cues = []
     scope_scopes = []
     scope_sentence = []
@@ -43,42 +37,38 @@ def sfu_review(f_path):
     in_cue = []
     word_num = 0
     c_idx = []
-    cue_only_data = []
     s_idx = []
-    in_word = 0
+    in_sentence = 0
     for token in sentences:
-        # print(token)
         if token == '':
             continue
-        elif token == '<W>':
-            in_word = 1
-        elif token == '</W>':
-            in_word = 0
-            word_num += 1
+        elif '<sentence' in token:
+            in_sentence = 1
         elif '<cue' in token:
             if TASK in token:
-                in_cue.append(int(re.split('(ID=".*?")', token)[1][4:-1]))
-                c_idx.append(int(re.split('(ID=".*?")', token)[1][4:-1]))
+                # print(token)
+                # print(str(re.split('(ref=".*?")', token)[1][4:]))
+                in_cue.append(str(re.split('(ref=".*?")', token)[1][4:]))
+                c_idx.append(str(re.split('(ref=".*?")', token)[1][4:]))
                 cue[c_idx[-1]] = []
         elif '</cue' in token:
             in_cue = in_cue[:-1]
         elif '<xcope' in token:
-            continue
+            # print('token', token)
+            # print(re.split('(id=".*?")', token)[1])
+            in_scope.append(str(re.split('(id=".*?")', token)[1][3:]))
+            s_idx.append(str(re.split('(id=".*?")', token)[1][3:]))
+            scope[s_idx[-1]] = []
         elif '</xcope' in token:
             in_scope = in_scope[:-1]
-        elif '<ref' in token:
-            in_scope.append([int(i) for i in re.split('(SRC=".*?")', token)[1][5:-1].split(' ')])
-            s_idx.append([int(i) for i in re.split('(SRC=".*?")', token)[1][5:-1].split(' ')])
-            for i in s_idx[-1]:
-                scope[i] = []
-        elif '</SENTENCE' in token:
+        elif '</sentence' in token:
+            # print(cue, scope)
             if len(cue.keys()) == 0:
                 cue_only_data.append([sentence, [3] * len(sentence)])
             else:
                 cue_sentence.append(sentence)
                 cue_cues.append([3] * len(sentence))
                 for i in cue.keys():
-                    # print(sentence)
                     scope_sentence.append(sentence)
                     scope_cues.append([3] * len(sentence))
                     if len(cue[i]) == 1:
@@ -89,29 +79,31 @@ def sfu_review(f_path):
                             cue_cues[-1][c] = 1
                             scope_cues[-1][c] = 1
                     scope_scopes.append([0] * len(sentence))
+
                     if i in scope.keys():
                         for s in scope[i]:
                             scope_scopes[-1][s] = 1
+
             sentence = []
             cue = {}
             scope = {}
             in_scope = []
             in_cue = []
             word_num = 0
-            in_word = 0
+            in_sentence = 0
             c_idx = []
             s_idx = []
         elif '<' not in token:
-            if in_word == 1:
+            if in_sentence == 1:
+                words = token.split()
+                sentence += words
                 if len(in_cue) != 0:
                     for i in in_cue:
-                        cue[i].append(word_num)
-                if len(in_scope) != 0:
+                        cue[i] += [word_num + i for i in range(len(words))]
+                elif len(in_scope) != 0:
                     for i in in_scope:
-                        for j in i:
-                            scope[j].append(word_num)
-
-                sentence.append(clean_sent(token))
+                        scope[i] += [word_num + i for i in range(len(words))]
+                word_num += len(words)
 
     return scope_sentence, scope_cues, scope_scopes
 
@@ -121,9 +113,9 @@ def write_files(data):
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    outfile1 = outpath / Path('SFU_1label.json')
-    textfile1 = outpath / Path('SFU_sents.txt')
-    textfile2 = outpath / Path('SFU_1label_anno.txt')
+    outfile1 = outpath / Path('BIOSCOPE_1label.json')
+    textfile1 = outpath / Path('BIOSCOPE_sents.txt')
+    textfile2 = outpath / Path('BIOSCOPE_1label_anno.txt')
 
     json_data = [item[:3] for item in data]
 
@@ -137,6 +129,7 @@ def write_files(data):
     count = 0
     with open(textfile2, 'w', encoding='utf8') as outf:
         for item in data:
+            # print(item)
             zipped = zip(item[0], item[1], item[2])
             cue = ''
             scope = ''
@@ -155,52 +148,24 @@ def write_files(data):
             outf.write('\n')
 
 
-def postprocess(zipped_data, file_names):
-    newzippy = []
-    dataout = []
-    for item in zipped_data:
-        zippy = zip(item[0], item[1], item[2])
+scope_sents = []
+scope_cues = []
+data_scope = []
+files = []
 
-        # remove unconventional quotation marks
-        newzippy = [i for i in zippy if i[0] not in ["ABRACADABRA", "~"]]
+for file in data:
 
-        # reconstruct the data for json
-        newlist = []
-        for i in zip(*newzippy):
-            newlist.append(list(i))
-        newlist.append(item[3])
-        # print(newlist)
+    sents, cues, scopes = bioscope(file)
+    scope_sents.extend(sents)
+    scope_cues.extend(cues)
+    data_scope.extend(scopes)
+    # print(len(sents), file)
+    if 'full_papers' in file:
+        # print(file)
+        files.extend(['full_papers'] * len(sents))
+    if 'abstracts' in file:
+        files.extend(['abstracts'] * len(sents))
 
-        dataout.append(newlist)
+zipped_data = list(zip(scope_sents, scope_cues, data_scope, files))
 
-    return dataout
-
-
-sfu_tokens = []
-sfu_cues = []
-sfu_scopes = []
-file_names = []
-
-for dir_name in os.listdir(sfu_data):
-    if '.' not in dir_name:
-        for f_name in os.listdir(sfu_data + "//" + dir_name):
-            sents, cues, scopes = sfu_review(sfu_data + "//" + dir_name + '//' + f_name)
-            sfu_tokens.extend(sents)
-            sfu_cues.extend(cues)
-            sfu_scopes.extend(scopes)
-            file_names.append(f_name)
-
-all_data = zip(sfu_tokens, sfu_cues, sfu_scopes, file_names)
-
-# for item in all_data:
-#     print(item)
-
-all_data = postprocess(all_data, file_names)
-
-for item in all_data:
-    print(item[0])
-    print(item[1])
-    print(item[2])
-    print(item[3])
-
-write_files(all_data)
+write_files(zipped_data)

@@ -1,11 +1,19 @@
-# to run
+Russian data was obtained from the internet, processed, aligned with Hunalign with the English sentences together with their annotations. A custom annotation recipe was created in Prodigy that displayed annotated English sentences along the Russian sentences.
+
+# extract_cardboard_sherlock.py extracts tokens and annotations from the original corpus, removes odd quotation marks, creates a json file that is suitable for NegBERT
+
+# cardboard4prodigy.py prepares special prodigy format that contains Rus sentence, Eng sentence with annotations
+
+
+# to run annotation procedure
 
 1. prepare for annotation
 conda activate prodigy
-prodigy my.manual SUPERANNO_PROJEKT.sqlite blank:ru data4prodigy.jsonl --label Cue,Scope -F my_prodigy_manual.py
+prodigy my.manual russian_anno.db blank:ru data4prodigy.jsonl --label Cue,Scope -F my_prodigy_manual.py
 
 
-
+get annotations:
+    prodigy db-out russian_anno.db rus_anno
 
 ANNOTATIONS:
 
@@ -24,6 +32,8 @@ No nos dieron ninguna facilidad.
 No ninguna (cues)
 nos dieron facilidad (scope)
 
+"никак" is annotated as CUE like in Spanish "en ningún momento", "de ninguna manera"
+
 The value of <discid> is represented both numerically (1 in the example below), which indicates the numerical order of the discontinuous negative elements in that negative structure, and as a letter ‘n’ and ‘c’, where ‘n’ and ‘c’ indicate the first (nucleus or core) and second element of the negation respectively.
 
 
@@ -39,13 +49,19 @@ In SFU Review the phrase "not to mention" is marked for negation (for example in
 
 
 
+Prodigy:
+adjusted text box size in CSS files .prodigy-container
+
 
 CAS: 945 negation events turned into sentences
 before I had 914!
 
 ESSAI: 1079 neg sentences from my script.
        1064 on the site https://clementdalloux.fr/?page_id=28
+       58 repetitions of the sentence: Critères de non- inclusion .
 
+       946
+       1079
 
 extract test text from Sherlcok.
 Apparently, I use only train and dev data. My test files remained unused.
