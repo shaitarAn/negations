@@ -16,16 +16,13 @@ from collections import defaultdict
 from pathlib import Path
 import json
 
-# Choose your corpus: CAS, ESSAI
-corpus = "ESSAI"
+data1 = "../corpora/CAS_sherlock_full.txt"
+data2 = "../corpora/ESSAI_sherlock_full.txt"
 
-if corpus == "CAS":
-    data = "corpora/CAS_sherlock_full.txt"
-else:
-    data = "corpora/ESSAI_sherlock_full.txt"
+data = [data1, data2]
 
 
-def starsem(f_path, cue_sents_only=False, frac_no_cue_sents=1.0):
+def starsem(f_path):
     '''
     Function taken from NegBERT by Khandelwal et. al
     '''
@@ -124,8 +121,7 @@ def starsem(f_path, cue_sents_only=False, frac_no_cue_sents=1.0):
                 scope_sents.append(sentence)
                 data_scope.append(scope[i])
 
-    starsem_scopes = (scope_sents, scope_cues, data_scope)
-    return starsem_scopes
+    return scope_sents, scope_cues, data_scope
 
 
 def sample(iterable, k):
@@ -143,17 +139,19 @@ def sample(iterable, k):
     return training, rest
 
 
-def write_files(data, corpus):
+def write_files(data):
 
     outpath = Path('output/')
     outpath.mkdir(parents=True, exist_ok=True)
 
-    outfile1 = outpath / Path('french{}data.json'.format(corpus))
-    textfile1 = outpath / Path('french{}sents.txt'.format(corpus))
-    textfile2 = outpath / Path('french{}sents_anno.txt'.format(corpus))
+    outfile1 = outpath / Path('FRENCH_2labels.json')
+    textfile1 = outpath / Path('FRENCH_sents.txt')
+    textfile2 = outpath / Path('FRENCH_2labels_anno.txt')
+
+    json_data = [item[:3] for item in data]
 
     with open(outfile1, 'w') as outf1:
-        json.dump(data, outf1)
+        json.dump(json_data, outf1)
 
     with open(textfile1, 'w', encoding='utf8') as outf:
         for item in data:
@@ -171,7 +169,7 @@ def write_files(data, corpus):
                 if t[2] != 0:
                     scope += ' ' + str(t[0])
             count += 1
-            outf.write(str(count) + '\n')
+            outf.write(str(count) + '\t' + str(item[3]) + '\n')
             outf.write(' '.join(item[0]) + '\n')
             outf.write(str(item[1]) + '\n')
             outf.write(str(item[2]) + '\n')
@@ -180,14 +178,34 @@ def write_files(data, corpus):
             outf.write('\n')
 
 
-starsem_scopes = starsem(data)
-scope_sents, scope_cues, data_scope = starsem_scopes
-zipped_data = list(zip(scope_sents, scope_cues, data_scope))
+scope_sents = []
+scope_cues = []
+data_scope = []
+files = []
 
-write_files(zipped_data, corpus)
+for file in data:
 
-for item in zipped_data:
-    print(item)
-    print()
+    sents, cues, scopes = starsem(file)
+    scope_sents.extend(sents)
+    scope_cues.extend(cues)
+    data_scope.extend(scopes)
+    print(len(sents), file)
+    if 'CAS' in file:
+        print(file)
+        files.extend(['CAS'] * len(sents))
+    if 'ESSAI' in file:
+        files.extend(['ESSAI'] * len(sents))
 
-print(len(zipped_data))
+zipped_data = []
+zipped_data2 = list(zip(scope_sents, scope_cues, data_scope, files))
+for item in zipped_data2:
+    if item not in zipped_data:
+        zipped_data.append(item)
+
+write_files(zipped_data)
+
+# for item in zipped_data:
+#     print(item)
+#     print()
+#
+# print(len(zipped_data))
