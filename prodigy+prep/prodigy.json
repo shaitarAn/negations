@@ -2,7 +2,7 @@
   "db": "sqlite",
   "db_settings": {
     "sqlite": {
-      "name": "russian_anno.db",
+      "name": "russian_anno2.db",
       "path": "/Users/anastassiashaitarova/Documents/work_projects/negations+/prodigy+prep/"
     }
   }

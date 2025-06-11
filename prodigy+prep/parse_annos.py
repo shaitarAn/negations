@@ -24,8 +24,8 @@ def write_files(data):
     textfile1 = outpath / Path('RUS_sents.txt')
     textfile2 = outpath / Path('RUS_anno.txt')
 
-    for item in data:
-        print(item)
+    # for item in data:
+    #     print(item)
 
     with open(outfile1, 'w') as outf1:
         json.dump(data, outf1)
@@ -103,6 +103,9 @@ for json_str in json_list:
         scope_sents.append(rus_sents)
         scope_cues.append(cues)
         data_scope.append(scopes)
+
+# for item in scope_sents:
+#     print([t.decode('utf-8') for t in item])
 
 zipped_data = list(zip(scope_sents, scope_cues, data_scope))
 write_files(zipped_data)

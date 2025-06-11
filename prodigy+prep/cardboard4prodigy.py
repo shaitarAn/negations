@@ -1,25 +1,23 @@
-# !/usr/bin/env python3
-# -*- coding: utf8 -*-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+"""
+Takes a file with parallel Russian-English sentences produced by Hunalign,
+a file with the annotated English corpus,
+pairs up annotations with the Eng-Rus pairs,
+writes a JSONL file with Russian sentence, English sentence, and annotation information
+in a format suitable for Prodigy.
+"""
 
 __author__ = "Anastassia Shaitarova"
 
-'''
-Takes a file with parallel Russian-English sente4nces produced by Hunalign,
-a file with the annotated English corpus,
-pairs up annotations with the Eng-Rus pairs,
-writes jsonl file with Russian sentence, english sentence and annotation information
-in the format that is suitable for prodigy.
-'''
-
-
 import json
 import re
+import jsonlines
 import spacy
+from spacy.tokens import Doc
 from xml.etree import ElementTree as ET
 from bs4 import BeautifulSoup as BS
-from spacy.tokens import Doc
-import jsonlines
 
 # annotated English sentences
 anno = "../english/output/SHERLOCK_cardbord.json"

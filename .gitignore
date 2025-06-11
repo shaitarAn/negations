@@ -1,6 +1,8 @@
-/corpora
-/output
-/old_models
+/NEGS-randarb
 .DS_Store
 __pycache__/
-/non_prodigy_related_negs
+/corpora_txt
+/evaluation
+/imgs
+/NAACL-prep
+
