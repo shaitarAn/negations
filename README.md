@@ -1,26 +1,12 @@
-# Negations: extended work
+# Transfer Learning for Negation Scope Resolution
 
-## Duplicating sentences with multiple negations in the Spanish and French corpora.
+This repository contains scripts and outputs from my Master's work at the Department of Computational Linguistics, University of Zurich.
 
-### Spanish corpus SFU ReviewSP-NEG
+For more details, see the following publications:
 
+- [Cross-Lingual Transfer-Learning Approach to Negation Scope Resolution](https://doi.org/10.5167/uzh-197355)
 
-__one_sent_SFU2MultiBERT.py__: is written as a test script for only one file from the corpus. It extracts annotations the way I did it in my thesis. It does not split sentences with multiple negations.
-
-__one_sent_duplicate.py__: I try to extract anno and duplicate sentences using ElementTree. I iterate through each sentence as many times as there are negation structures in total. I also order negation structures by counting them incrementally. If the order of a negation structure == the order of iteration, I collect the anno for the cue.
-
-
-PROBLEM: .getroot() uses actual file as a root. I cannot find a way to use sentence node as a root.
-
-__process_top_level_negs_SP.py__: A copy of __try_this.py__ which processes the entire Spanish corpus. Currently, it counts the number of top level neg_structures and creates as many copies of a sentence as there neg_structures.
-
-Current stats:
-- 3076 all_neg_sents
-- 4113 newly collected sents
-- 4327 all_neg_structures
-- 4327 nested_neg_sents
-- 214 lost neg_structures
-- (in my thesis I had collected 2197 OneScope sents)
+- [Negation Typology and General Representation Models for Cross-Lingual Zero-Shot Negation Scope Resolution in Russian, French, and Spanish.](https://www.aclweb.org/anthology/2021.naacl-srw.3)
 
 ## Citation
 
