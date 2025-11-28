@@ -93,7 +93,7 @@ Scripts for annotating Russian data using Prodigy.
 
 ## Citation
 
-If you use this repository or its methods, please cite the following works:
+If you use this repository or its methods, please cite at least on of the following works:
 
 ```bibtex
  @thesis{Shaitarova_2020,
