@@ -96,6 +96,15 @@ Scripts for annotating Russian data using Prodigy.
 If you use this repository or its methods, please cite the following works:
 
 ```bibtex
+ @thesis{Shaitarova_2020,
+   title={The feasibility of a cross-lingual transfer-learning approach to negation scope resolution},
+   DOI={10.5167/uzh-280319},
+   note={Master’s thesis, University of Zurich},
+   author={Shaitarova, Anastassia},
+   year={2020},
+   month={Jul}
+}
+
 @inproceedings{Shaitarova2020,
   title={Cross-Lingual Transfer-Learning Approach to Negation Scope Resolution},
   author={Shaitarova, Anastassia and Furrer, Lenz and Rinaldi, Fabio},
